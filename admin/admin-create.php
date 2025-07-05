@@ -1,3 +1,5 @@
+<?php session_start(); ?>
+
 <?php include('includes/header.php'); ?>
 <div class="container-fluid px-4">
     <h1 class="mt-4">Dashboard</h1>
@@ -11,6 +13,7 @@
             <h5 class="mb-0">Add New Admin / Staff</h5>
         </div>
         <div class="card-body">
+            <?php alertMessage(); ?>
             <form action="code.php" method="POST">
                 <div class="row">
                     <div class="col-md-12 mb-3">

@@ -74,7 +74,7 @@ function getAll($tableName, $status = NULL)
     if ($status == 'status') {
         $query = 'SELECT * FROM $table WHERE status = "0"';
     } else {
-        $query = 'SELECT * FROM $table';
+        $query = "SELECT * FROM $table";
     }
 
     $result = mysqli_query($conn, $query);
@@ -104,15 +104,28 @@ function getById($tableName, $id)
     }
 }
 
+function checkParamId($type)
+{
+    if (isset($_GET[$type])) {
+        if ($_GET[$type] != '') {
+            return $_GET[$type];
+        } else {
+            return '<h5> No id found! </h5>';
+        }
+    } else {
+        return '<h5> No id given! </h5>';
+    }
+}
+
 function delete($tableName, $id)
 {
     global $conn;
     $table = validate($tableName);
     $id = validate($id);
 
-    $query = "DELETE FROM $table WHERE id = '$id' LIMIT 1";
+    $query = "DELETE FROM $table WHERE id = $id LIMIT 1";
 
-    $result = mysqli_query($conn,$query);
+    $result = mysqli_query($conn, $query);
 
     return $result;
 }
