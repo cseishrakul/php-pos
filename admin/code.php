@@ -39,12 +39,12 @@ if (isset($_POST['saveAdmin'])) {
 }
 
 
-if(isset($_POST['updateAdmin'])){
+if (isset($_POST['updateAdmin'])) {
     $adminId = validate($_POST['adminId']);
 
-    $adminData = getById('admins',$adminId);
-    if($adminData['status'] != 200){
-        redirect('admin-edit.php?id='.$adminId,'Please fill up the requirements!');
+    $adminData = getById('admins', $adminId);
+    if ($adminData['status'] != 200) {
+        redirect('admin-edit.php?id=' . $adminId, 'Please fill up the requirements!');
     }
 
     $name = validate($_POST['name']);
@@ -53,13 +53,23 @@ if(isset($_POST['updateAdmin'])){
     $phone = validate($_POST['phone']);
     $is_ban = validate($_POST['is_ban']);
 
-    if($password != ''){
-        $hashedPassword = password_hash($password,PASSWORD_BCRYPT);
-    }else{
+    $emailCheckQuery = "SELECT * FROM admins WHERE email='$email' AND id !='$adminId'";
+
+    $checkResult = mysqli_query($conn,$emailCheckQuery);
+    if($checkResult){
+        if(mysqli_num_rows($checkResult) > 0){
+            redirect('admin-edit.php?id='.$adminId,'Email already used by another user!');
+        }
+    }
+
+
+    if ($password != '') {
+        $hashedPassword = password_hash($password, PASSWORD_BCRYPT);
+    } else {
         $hashedPassword = $adminData['data']['password'];
     }
 
-    if($name != '' && $email != '' ){
+    if ($name != '' && $email != '') {
         $data = [
             'name' => $name,
             'email' => $email,
@@ -67,13 +77,13 @@ if(isset($_POST['updateAdmin'])){
             'phone' => $phone,
             'is_ban' => $is_ban
         ];
-        $result = update('admins',$adminId,$data);
-        if($result){
-            redirect('admin-edit.php?id='.$adminId, 'Admin updated sucessfully!');
-        }else{
-             redirect('admin-edit.php?id='.$adminId, 'Something went wrong!');
+        $result = update('admins', $adminId, $data);
+        if ($result) {
+            redirect('admin-edit.php?id=' . $adminId, 'Admin updated sucessfully!');
+        } else {
+            redirect('admin-edit.php?id=' . $adminId, 'Something went wrong!');
         }
-    }else{
-         redirect('admin-edit.php?id='.$adminId, 'Please fill required fields!');
+    } else {
+        redirect('admin-edit.php?id=' . $adminId, 'Please fill required fields!');
     }
 }

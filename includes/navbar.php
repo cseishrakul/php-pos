@@ -9,8 +9,18 @@
         <li class="nav-item">
           <a class="nav-link active" aria-current="page" href="index.php">Home</a>
         </li>
-        <li class="nav-item">
-          <a class="nav-link" href="login.php">Login</a>
+        <?php if (isset($_SESSION['loggedIn'])) : ?>
+          <li class="mt-2">
+            <?= $_SESSION['loggedInUser']['name']; ?>
+          </li>
+          <li class="nav-item">
+            <a class="btn btn-danger" href="logout.php">Logout</a>
+          </li>
+        <?php else : ?>
+          <li class="nav-item">
+            <a class="nav-link" href="login.php">Login</a>
+          </li>
+        <?php endif; ?>
       </ul>
     </div>
   </div>
