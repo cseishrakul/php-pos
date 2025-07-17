@@ -74,7 +74,7 @@ function getAll($tableName, $status = NULL)
     if ($status == 'status') {
         $query = 'SELECT * FROM $table WHERE status = "0"';
     } else {
-        $query = "SELECT * FROM $table";
+        $query = "SELECT * FROM $table ORDER BY id DESC";
     }
 
     $result = mysqli_query($conn, $query);
