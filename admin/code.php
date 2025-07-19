@@ -216,3 +216,79 @@ if(isset($_POST['updateProduct'])){
         redirect('product-edit.php', 'Something went wrong!');
     }
 }
+
+
+
+if(isset($_POST['saveCustomer'])){
+    $name = validate($_POST['name']);
+    $email = validate($_POST['email']);
+    $phone = validate($_POST['phone']);
+    $status = isset($_POST['status']) ? 1 : 0;
+
+    $errors = [];
+    if(empty($name)){
+        $errors[] = "Name is required";
+    }
+    if(empty($email)){
+        $errors[] = "Email is required";
+    }elseif(!filter_var($email,FILTER_VALIDATE_EMAIL)){
+        $errors= "Invalid email format";
+    }
+
+    if(empty($phone)){
+        $errors = "Phone number is required";
+    }
+
+    $checkEmail = mysqli_query($conn,"SELECT * FROM customers WHERE email = '$email'");
+
+    if(mysqli_num_rows($checkEmail) > 0){
+        $errors[] = "Email already exists";
+    }
+
+    if(!empty($errors)){
+        $errorMessage  = implode('<br>',$errors);
+        redirect('customer-create.php',$errorMessage);
+    }
+
+    $data = [
+        'name' => $name,
+        'email' => $email,
+        'phone' => $phone,
+        'status' => $status,
+        'created_at' => date('Y-m-d H:i:s'),
+    ];
+
+    $result = insert('customers',$data);
+
+    if($result){
+        redirect('customers.php','Customer added succesfully!');
+    }else{
+        redirect('customer-create.php','Customer failed to add!');
+    }
+
+}
+
+if (isset($_POST['updateCustomer'])) {
+    $customerId = validate($_POST['customer_id']);
+    $name = validate($_POST['name']);
+    $email = validate($_POST['email']);
+    $phone = validate($_POST['phone']);
+    $status = isset($_POST['status']) == true ? 1 : 0;
+
+    $data = [
+        'name' => $name,
+        'email' => $email,
+        'phone' => $phone,
+        'status' => $status
+    ];
+
+    $result = update('customers', $customerId, $data);
+
+    if ($result) {
+        redirect('customers.php', 'Customer updated successfully!');
+    } else {
+        redirect('customer-edit.php', 'Something went wrong!');
+    }
+}
+
+
