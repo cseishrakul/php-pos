@@ -54,36 +54,35 @@ if (isset($_POST['saveOrder'])) {
     } else {
         redirect('order-create.php', 'No product found');
     }
-   
 }
 
 
 
 
-if(isset($_POST['increment']) || isset($_POST['decrement'])){
+if (isset($_POST['increment']) || isset($_POST['decrement'])) {
     $productId = validate($_POST['product_id']);
     $currentQuantity = (int) validate(($_POST['quantity']));
 
-    $checkProduct = mysqli_query($conn,"SELECT * FROM products WHERE id = '$productId' LIMIT 1");
+    $checkProduct = mysqli_query($conn, "SELECT * FROM products WHERE id = '$productId' LIMIT 1");
 
-    if($checkProduct && mysqli_num_rows($checkProduct) > 0){
+    if ($checkProduct && mysqli_num_rows($checkProduct) > 0) {
         $row = mysqli_fetch_assoc($checkProduct);
         $stockQuantity = (int) $row['quantity'];
     }
-    if(isset($_POST['increment'])){
+    if (isset($_POST['increment'])) {
         $newQuantity = $currentQuantity + 1;
-    }elseif(isset($_POST['decrement'])){
-        $newQuantity = max(1,$currentQuantity - 1);
+    } elseif (isset($_POST['decrement'])) {
+        $newQuantity = max(1, $currentQuantity - 1);
     }
 
-    if($newQuantity > $stockQuantity){
+    if ($newQuantity > $stockQuantity) {
         $newQuantity = $stockQuantity;
         $_SESSION['message'] = "Only $stockQuantity Items in stock! ";
     }
 
     $update = false;
-    foreach($_SESSION['productItems'] as $key => $item){
-        if($item['product_id'] == $productId){
+    foreach ($_SESSION['productItems'] as $key => $item) {
+        if ($item['product_id'] == $productId) {
             $_SESSION['productItems'][$key]['quantity'] = $newQuantity;
             $update = true;
             break;
@@ -91,4 +90,61 @@ if(isset($_POST['increment']) || isset($_POST['decrement'])){
     }
     header("Location:order-create.php");
     exit();
+}
+
+
+if (isset($_POST['proceedToPlace'])) {
+    $paymentMode = validate($_POST['payment_mode']);
+    $cphone = validate($_POST['cphone']);
+    if ($paymentMode == '' || $cphone == '') {
+        redirect('order-create.php', 'Please select payment method and enter phone number!');
+    }
+
+    $checkCustomer = mysqli_query($conn, "SELECT * FROM customers WHERE phone='$cphone' LIMIT 1");
+
+    if (mysqli_num_rows($checkCustomer) > 0) {
+        $customer = mysqli_fetch_assoc($checkCustomer);
+
+        $_SESSION['order_customer_id'] = $customer['id'];
+        $_SESSION['customer_phone'] = $cphone;
+        $_SESSION['payment_mode'] = $paymentMode;
+        redirect('order-summary.php', 'Customer found.Proceeding to summary');
+    } else {
+        $_SESSION['new_customer_phone'] = $cphone;
+        $_SESSION['payment_mode'] = $paymentMode;
+        $_SESSION['show_add_customer_modal'] = true;
+
+        redirect('order-create.php', 'Customer not found.Please add customer');
+    }
+}
+
+
+if (isset($_POST['saveCustomer'])) {
+    $name = validate($_POST['name']);
+    $email = validate($_POST['email']);
+    $phone = validate($_POST['phone']);
+
+    $check = mysqli_query($conn, "SELECT * FROM customers WHERE phone = '$phone'");
+
+    if (mysqli_num_rows($check) > 0) {
+        $_SESSION['message'] = "Customer already exists";
+    }
+
+    $query = "INSERT INTO customers (name,email,phone) VALUES ('$name','$email','$phone')";
+
+    $result = mysqli_query($conn, $query);
+
+    if ($result) {
+        $customer_id = mysqli_insert_id($conn);
+        $_SESSION['order_customer_id'] = $customer_id;
+        $payment_mode = $_SESSION['payment_mode'] ?? 'Cash Payment';
+        $_SESSION['payment_mode'] = $payment_mode;
+        unset($_SESSION['new_customer_phone']);
+        unset($_SESSION['show_add_customer_modal']);
+        header("Location:order-summary.php");
+        exit();
+    }else{
+        $_SESSION['message'] = "Failed to add customer.";
+        header("Location:order-create.php");
+    }
 }
