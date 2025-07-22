@@ -24,19 +24,6 @@ $order_date = date('Y-m-d');
 $order_status = 'confirmed';
 $order_by_id = $_SESSION['loggiedInUser']['user_id'] ?? 1;
 
-// $data = [
-//     'customer_id' => $customer_id,
-//     'tracking_no ' => $tracking_no,
-//     'invoice_no' => $invoice_no,
-//     'total_amount' => $total_amount,
-//     'order_date' => $order_date,
-//     'order_status' => $order_status,
-//     'payment_mode' => $payment_mode,
-//     'order_placed_by_id' => $order_by_id
-// ];
-
-// $query = insert('orders', $data);
-
 $insertOrderQuery = "INSERT INTO orders (customer_id,tracking_no,invoice_no,total_amount,order_date,order_status,payment_mode,order_placed_by_id) VALUES ('$customer_id','$tracking_no','$invoice_no','$total_amount','$order_date','$order_status','$payment_mode','$order_by_id')";
 
 $runOrder = mysqli_query($conn, $insertOrderQuery);
