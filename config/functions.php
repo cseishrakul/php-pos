@@ -135,3 +135,18 @@ function logoutSession(){
     unset($_SESSION['loggedIn']);
     unset($_SESSION['loggedInUser']);
 }
+
+function countTableRows($tableName,$where=''){
+    global $conn;
+    $sql = "SELECT COUNT(*) AS total FROM $tableName";
+    if($where !== ''){
+        $sql .=" WHERE $where";
+    }
+
+    $result = mysqli_query($conn,$sql);
+    if($result){
+        $data = mysqli_fetch_assoc($result);
+        return $data['total'];
+    }
+    return 0;
+}
